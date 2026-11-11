@@ -1,0 +1,4 @@
+== Promedios de vmstat (us sy id wa st) ==
+us=76.4 sy=7.1 id=15.0 wa=0.9 st=1.1 (n=290)
+== Promedio de pidstat de la API (%CPU, RSS kB) ==
+%CPU=157.6 RSS_kB=174152 (n=290)

@@ -1,0 +1,62 @@
+{
+  "usuarios": 300,
+  "rampa_seg": 60,
+  "sostenido_seg": 300,
+  "espera_seg": [
+    0.1,
+    0.5
+  ],
+  "host": "http://localhost:3000",
+  "endpoints": [
+    {
+      "endpoint": "POST /api/auth/login",
+      "peticiones": 28288,
+      "fallos": 0,
+      "rps": 78.5,
+      "p50": 63,
+      "p95": 140,
+      "p99": 200,
+      "max": 357
+    },
+    {
+      "endpoint": "POST /api/auth/login [inicio de sesión del usuario]",
+      "peticiones": 300,
+      "fallos": 0,
+      "rps": 0.8,
+      "p50": 38,
+      "p95": 99,
+      "p99": 160,
+      "max": 169
+    },
+    {
+      "endpoint": "GET /api/productos?categoria=[slug]",
+      "peticiones": 169755,
+      "fallos": 0,
+      "rps": 470.9,
+      "p50": 27,
+      "p95": 73,
+      "p99": 100,
+      "max": 233
+    },
+    {
+      "endpoint": "POST /api/ventas",
+      "peticiones": 85119,
+      "fallos": 0,
+      "rps": 236.1,
+      "p50": 63,
+      "p95": 130,
+      "p99": 170,
+      "max": 335
+    },
+    {
+      "endpoint": "TOTAL",
+      "peticiones": 283462,
+      "fallos": 0,
+      "rps": 786.4,
+      "p50": 37,
+      "p95": 110,
+      "p99": 150,
+      "max": 357
+    }
+  ]
+}

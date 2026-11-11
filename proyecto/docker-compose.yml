@@ -1,0 +1,60 @@
+# Entorno 3 del proyecto: contenedor con límites definidos por nosotros.
+#
+#   docker compose up -d --build
+#   docker stats                      # CPU % y MEM USAGE / LIMIT en vivo
+#   cat /sys/fs/cgroup/system.slice/docker-$(docker inspect -f '{{.Id}}' tienda-api).scope/cpu.stat
+#
+# La API queda limitada a 0,5 vCPU y 512 MB SIN swap. En cgroups v2 eso se
+# traduce en:
+#   cpu.max    = "50000 100000"   → 50 ms de CPU por cada ventana de 100 ms (CFS)
+#   memory.max = 536870912        → si el proceso pasa de 512 MB, el kernel lo mata (OOM)
+#
+# Postgres corre en su propio contenedor con sus propios límites, que también
+# se anotan en el informe ("anotar el entorno completo").
+services:
+  bd:
+    image: postgres:16-alpine
+    container_name: tienda-bd
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tienda_carga
+    volumes:
+      - ../base_de_datos.sql:/docker-entrypoint-initdb.d/01_base_de_datos.sql:ro
+      - datos_pg:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    cpus: "${PG_CPUS:-1.0}"
+    mem_limit: "${PG_MEM:-512m}"
+    memswap_limit: "${PG_MEM:-512m}"
+    shm_size: 128m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tienda_carga"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: ./backend
+    container_name: tienda-api
+    depends_on:
+      bd:
+        condition: service_healthy
+    environment:
+      PORT: "3000"
+      PGHOST: bd
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: tienda_carga
+      PG_POOL_MAX: "20"
+      JWT_SECRET: "${JWT_SECRET:-secreto-del-laboratorio-ucc-pasto}"
+    ports:
+      - "3000:3000"
+    cpus: "${API_CPUS:-0.5}"
+    mem_limit: "${API_MEM:-512m}"
+    memswap_limit: "${API_MEM:-512m}"
+    restart: "no"
+
+volumes:
+  datos_pg:
